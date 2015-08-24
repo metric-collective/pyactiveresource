@@ -9,6 +9,25 @@ import sys
 import six
 from six.moves import urllib
 from pyactiveresource import formats
+from google.appengine.api import urlfetch
+
+
+class URLFetchShim():
+  
+  def __init__(self, response):
+    self.code = response.status_code
+    self.headers = response.headers
+    self.msg = response.header_msg
+    self.body = response.content
+    self.url = ""
+
+  def close(self):
+    pass
+
+  def read(self):
+    return self.body
+
+
 
 
 class Error(Exception):
@@ -296,7 +315,6 @@ class Connection(object):
                 http_response.close()
             if self.timeout and not _urllib_has_timeout():
                 socket.setdefaulttimeout(old_timeout)
-
         self.log.info('--> %d %s %db', response.code, response.msg,
                       len(response.body))
         return response
@@ -313,7 +331,14 @@ class Connection(object):
             urllib.error.URLError on IO errors.
         """
         if _urllib_has_timeout():
-          return urllib.request.urlopen(request, timeout=self.timeout)
+          response = urlfetch.fetch(
+            request.get_full_url(), 
+            method=request.get_method(),
+            headers=request.headers
+          )
+
+          return URLFetchShim(response)
+          # return urllib.request.urlopen(request, timeout=self.timeout)
         else:
           return urllib.request.urlopen(request)
 
