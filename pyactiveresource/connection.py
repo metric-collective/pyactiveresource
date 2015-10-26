@@ -334,7 +334,8 @@ class Connection(object):
           response = urlfetch.fetch(
             request.get_full_url(), 
             method=request.get_method(),
-            headers=request.headers
+            headers=request.headers,
+            payload=request.data,
           )
 
           return URLFetchShim(response)
