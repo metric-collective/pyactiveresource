@@ -28,8 +28,6 @@ class URLFetchShim():
     return self.body
 
 
-
-
 class Error(Exception):
     """A general error derived from Exception."""
 
@@ -315,7 +313,7 @@ class Connection(object):
                 http_response.close()
             if self.timeout and not _urllib_has_timeout():
                 socket.setdefaulttimeout(old_timeout)
-        self.log.info('--> %d %s %db', response.code, response.msg,
+        self.log.info('--> Status: %d %d', response.code,
                       len(response.body))
         return response
 
